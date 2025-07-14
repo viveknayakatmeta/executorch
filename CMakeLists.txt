@@ -283,9 +283,10 @@ if(NOT "${_repo_dir_name}" STREQUAL "executorch")
   )
 endif()
 set(_common_include_directories
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_CURRENT_SOURCE_DIR}/runtime/core/portable_type/c10
-)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/runtime/core/portable_type/c10>
+  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/executorch/runtime/core/portable_type/c10>)
 
 #
 # The `_<target>_srcs` lists are defined by including ${EXECUTORCH_SRCS_FILE}.
@@ -501,8 +502,9 @@ install(
 )
 install(
   TARGETS executorch executorch_core
+  EXPORT ExecuTorchTargets
   INCLUDES
-  DESTINATION ${_common_include_directories}
+  DESTINATION include
 )
 install(FILES tools/cmake/Utils.cmake tools/cmake/executorch-config.cmake
         DESTINATION lib/cmake/ExecuTorch
@@ -683,6 +685,7 @@ if(EXECUTORCH_BUILD_PYBIND)
   target_link_libraries(portable_lib PRIVATE ${_dep_libs})
 
   install(TARGETS portable_lib
+          EXPORT ExecuTorchTargets
           LIBRARY DESTINATION executorch/extension/pybindings
   )
 endif()
@@ -765,3 +768,7 @@ if(EXECUTORCH_BUILD_ANDROID_JNI)
 endif()
 
 include(Test.cmake)
+
+install(EXPORT ExecuTorchTargets
+  FILE ExecuTorchTargets.cmake
+  DESTINATION lib/cmake/ExecuTorch)
